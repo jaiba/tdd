@@ -18,7 +18,7 @@ class NewVisitorTest(unittest.TestCase):
 
 		# I should see the page title reinforce that I'm looking at a to-do list
 		self.assertIn('To-Do', self.browser.title)
-		header_text = self.browser.find_element_by_tag_name('hi').text
+		header_text = self.browser.find_element_by_tag_name('h1').text
 		self.assertIn('To-Do', header_text)
 
 		# I'm invited to enter a to-do item at the home page
