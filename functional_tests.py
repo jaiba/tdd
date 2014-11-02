@@ -10,6 +10,11 @@ class NewVisitorTest(unittest.TestCase):
 		
   def tearDown(self):
     self.browser.quit()
+    
+  def check_for_row_in_list_table(self, row_text):
+    table = self.browser.find_element_by_id('id_list_table')
+    rows = table.find_elements_by_tag_name('tr')
+    self.assertIn(row_text, [row.text for row in rows])
 		
   def test_can_start_a_list_and_retrieve_it_later(self):
 
@@ -35,9 +40,7 @@ class NewVisitorTest(unittest.TestCase):
     # "1: Learn tdd" as an item on a to-do list
     inputbox.send_keys(Keys.ENTER)
 
-    table = self.browser.find_element_by_id('id_list_table')
-    rows = table.find_elements_by_tag_name('tr')
-    self.assertIn('1: Learn tdd', [row.text for row in rows])
+    self.check_for_row_in_list_table('1: Learn tdd')
     
     # There is still a text box in which to enter more to-dos.
     # I enter "Build bead stringing app"
@@ -45,11 +48,9 @@ class NewVisitorTest(unittest.TestCase):
     inputbox.send_keys('Build bead stringing app')
     inputbox.send_keys(Keys.ENTER)
 
-    # The page updates again and now shows two items on my list   
-    table = self.browser.find_element_by_id('id_list_table')
-    rows = table.find_elements_by_tag_name('tr')
-    self.assertIn('1: Learn tdd', [row.text for row in rows])
-    self.assertIn('2: Build bead stringing app', [row.text for row in rows])
+    # The page updates again and now shows two items on my list
+    self.check_for_row_in_list_table('1: Learn tdd')
+    self.check_for_row_in_list_table('2: Build bead stringing app')
 
     # Wondering how I'll get back to the list, I see that the 
     # site has generated a unique URL for me to visit to retrieve
