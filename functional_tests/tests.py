@@ -36,10 +36,12 @@ class NewVisitorTest(LiveServerTestCase):
     # I can type "Learn tdd" into a text box
     inputbox.send_keys('Learn tdd')
 
-    # After hitting enter, the page updates and now it shows
-    # "1: Learn tdd" as an item on a to-do list
+    # After hitting enter, I'm taken to a new URL
+    # and that page has
+    # "1: Learn tdd" as an item in a to-do list
     inputbox.send_keys(Keys.ENTER)
-
+    user_list_url = self.browser.current_url
+    self.assertRegex(user_list_url, '/lists/.+')
     self.check_for_row_in_list_table('1: Learn tdd')
     
     # There is still a text box in which to enter more to-dos.
@@ -52,9 +54,30 @@ class NewVisitorTest(LiveServerTestCase):
     self.check_for_row_in_list_table('1: Learn tdd')
     self.check_for_row_in_list_table('2: Build bead stringing app')
 
-    # Wondering how I'll get back to the list, I see that the 
-    # site has generated a unique URL for me to visit to retrieve
-    # the list because the site offers some text explaining that
-    self.fail('Finish the test!')
-    # I visit that URL and see my list
+    # A new user, Francis, comes along to use the site
     
+    ## We use a new browser session to ensure no data from
+    ## the previous user remains behind
+    self.browser.quit()
+    self.browser = webdriver.Firefox()
+    
+    # Francis visits the home page and sees no sign of my list
+    self.browser.get(self.live_server_url)
+    page_text = self.browser.find_element_by_tag_name('body').text
+    self.assertNotIn('Learn tdd', page_text)
+    self.assertNotIn('Build bead stringing app', page_text)
+    
+    # Francis starts a new list by entering an item
+    inputbox = self.browser.find_element_by_id('id_new_item')
+    inputbox.send_keys('Buy milk')
+    inputbox.send_keys(Keys.ENTER)
+    
+    # Francis get his own unique url
+    francis_list_url = self.browser.current_url
+    self.assertRegex(francis_list_url, '/lists/.+')
+    self.assertNotEqual(user_list_url, francis_list_url)
+    
+    # Again there is no trace of my list
+    page_text = self.browser.find_element_by_tag_name('body').text
+    self.assertNotIn('Learn tdd', page_text)
+    self.assertIn('Buy milk', page_text)
